@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+@layer base {
+  html,
+  body {
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a,
+  button,
+  summary {
+    touch-action: manipulation;
+  }
+}
+
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar {
       display: none;
@@ -8,8 +22,13 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
   }
+  .below-fold-opt {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 500px;
+  }
   .animate-cta-pulse {
       animation: ctaPulse 1.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      will-change: transform;
   }
   @media (prefers-reduced-motion: reduce) {
     .animate-cta-pulse {

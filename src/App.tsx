@@ -1,7 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Lock, ShieldCheck, CheckCircle2, RotateCcw, BadgeCheck, ArrowRight, ChevronDown, Volume2, VolumeX } from 'lucide-react';
-import { SalesToast } from './components/SalesToast';
-import { PrizeWheelModal } from './components/PrizeWheelModal';
+
+const SalesToast = lazy(() =>
+  import('./components/SalesToast').then((m) => ({ default: m.SalesToast }))
+);
+const PrizeWheelModal = lazy(() =>
+  import('./components/PrizeWheelModal').then((m) => ({ default: m.PrizeWheelModal }))
+);
+const preloadPrizeWheel = () => import('./components/PrizeWheelModal');
 
 const CHECKOUT_COMBO_URL = 'https://pay.wiapy.com/iHnQlTMv88d'; // R$ 37,90
 const CHECKOUT_BASIC_URL = 'https://pay.wiapy.com/JCduapP0LGGE'; // R$ 29,90
@@ -31,13 +37,19 @@ export default function App() {
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
   const [hasDiscountApplied, setHasDiscountApplied] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
+  const [mountDeferredUi, setMountDeferredUi] = useState(false);
   const heroVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMountDeferredUi(true), 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const videoEl = heroVideoRef.current;
     if (!videoEl) return;
 
-    // Garante compatibilidade com autoplay silencioso no iOS Safari, Android e WebViews
+    // Garante compatibilidade com autoplay silencioso no iOS Safari, Android e WebViews (Meta/Instagram)
     videoEl.defaultMuted = true;
     videoEl.muted = true;
     videoEl.setAttribute('muted', '');
@@ -70,7 +82,10 @@ export default function App() {
         });
     };
 
-    tryPlay();
+    // Inicia vídeo logo após a primeira pintura para não competir com o LCP no 4G/celular
+    const rafId = requestAnimationFrame(() => {
+      setTimeout(tryPlay, 60);
+    });
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -90,6 +105,7 @@ export default function App() {
     window.addEventListener('wheel', tryPlay, { passive: true });
 
     return () => {
+      cancelAnimationFrame(rafId);
       observer.disconnect();
       cleanupListeners();
     };
@@ -145,18 +161,26 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white text-gray-950 font-sans relative">
-      {/* Real-time Discreet Social Proof Purchase Pop-up */}
-      <SalesToast />
+      {/* Real-time Discreet Social Proof Purchase Pop-up (carregamento adiado pós-pintura inicial) */}
+      {mountDeferredUi && (
+        <Suspense fallback={null}>
+          <SalesToast />
+        </Suspense>
+      )}
 
-      {/* Roleta Premiada ao clicar no Plano Básico */}
-      <PrizeWheelModal 
-        isOpen={isDiscountModalOpen}
-        onClose={() => setIsDiscountModalOpen(false)}
-        onClaimPrize={handleClaimPrize}
-        onProceedBasic={handleProceedBasic}
-        prizeCheckoutUrl={CHECKOUT_DISCOUNT_URL}
-        basicCheckoutUrl={CHECKOUT_BASIC_URL}
-      />
+      {/* Roleta Premiada sob demanda ao clicar no Plano Básico */}
+      {isDiscountModalOpen && (
+        <Suspense fallback={null}>
+          <PrizeWheelModal 
+            isOpen={isDiscountModalOpen}
+            onClose={() => setIsDiscountModalOpen(false)}
+            onClaimPrize={handleClaimPrize}
+            onProceedBasic={handleProceedBasic}
+            prizeCheckoutUrl={CHECKOUT_DISCOUNT_URL}
+            basicCheckoutUrl={CHECKOUT_BASIC_URL}
+          />
+        </Suspense>
+      )}
       
       {/* Hero: Continuidade direta com o criativo + Vídeo demonstrativo otimizado */}
       <section className="bg-gradient-to-b from-sky-950 via-sky-900 to-sky-800 text-white px-4 pt-8 pb-10 sm:pt-14 sm:pb-16 relative overflow-hidden">
@@ -198,7 +222,7 @@ export default function App() {
                 muted={isVideoMuted}
                 loop
                 playsInline
-                preload="auto"
+                preload="metadata"
                 onClick={handleVideoSurfaceClick}
                 className="w-full h-full object-cover bg-black cursor-pointer"
               />
@@ -278,10 +302,10 @@ export default function App() {
       </section>
 
       {/* The Problem/Transformation */}
-      <section id="problema-metodo" className="container mx-auto px-4 py-8 sm:py-14 scroll-mt-6">
+      <section id="problema-metodo" className="below-fold-opt container mx-auto px-4 py-8 sm:py-14 scroll-mt-6">
         <div className="grid md:grid-cols-2 gap-6 sm:gap-10 items-center max-w-4xl mx-auto">
           <div className="bg-sky-50 p-3 sm:p-4 rounded-2xl border border-sky-100 max-w-[200px] sm:max-w-xs mx-auto md:max-w-none">
-             <img src="https://matematica.aprendizadodivertido01.com/imagens/produtoprincipal.webp" alt="Atividades" className="rounded-xl shadow-md w-36 sm:w-48 mx-auto" />
+             <img src="https://matematica.aprendizadodivertido01.com/imagens/produtoprincipal.webp" alt="Atividades" loading="lazy" decoding="async" className="rounded-xl shadow-md w-36 sm:w-48 mx-auto" />
           </div>
           <div className="space-y-3 sm:space-y-5 text-left">
             <h2 className="text-xl sm:text-3xl font-black text-sky-950 leading-tight">O PROBLEMA NÃO É O SEU FILHO, É O MÉTODO!</h2>
@@ -293,12 +317,12 @@ export default function App() {
       </section>
 
       {/* Social Proof */}
-      <section className="bg-gray-50 py-8 sm:py-14 border-y border-gray-100">
+      <section className="below-fold-opt bg-gray-50 py-8 sm:py-14 border-y border-gray-100">
         <div className="container mx-auto px-4 text-center max-w-5xl">
           <h2 className="text-xl sm:text-3xl font-black text-sky-950 mb-4 sm:mb-6">VEJA QUEM JÁ VIU A MUDANÇA:</h2>
           <div className="flex gap-3 sm:gap-5 overflow-x-auto pb-3 sm:pb-5 snap-x snap-mandatory scrollbar-hide px-1">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <img key={i} src={`https://matematica.aprendizadodivertido01.com/imagens/PROVASOCIAL%20(${i}).webp`} alt={`Relato ${i}`} className="snap-center h-[360px] xs:h-[400px] sm:h-[480px] rounded-2xl shadow-sm shrink-0 border border-gray-200/70" />
+              <img key={i} src={`https://matematica.aprendizadodivertido01.com/imagens/PROVASOCIAL%20(${i}).webp`} alt={`Relato ${i}`} loading="lazy" decoding="async" className="snap-center h-[360px] xs:h-[400px] sm:h-[480px] rounded-2xl shadow-sm shrink-0 border border-gray-200/70" />
             ))}
           </div>
           <p className="text-center font-bold mt-2 text-sky-700 text-xs sm:text-sm animate-pulse">👈 Arraste para o lado para ler os relatos →</p>
@@ -306,7 +330,7 @@ export default function App() {
       </section>
 
       {/* Extra Materials Section */}
-      <section className="container mx-auto px-4 py-8 sm:py-14 bg-white text-sky-900 max-w-3xl">
+      <section className="below-fold-opt container mx-auto px-4 py-8 sm:py-14 bg-white text-sky-900 max-w-3xl">
         <h2 className="text-xl sm:text-3xl font-black mb-5 sm:mb-8 text-center">E NÃO PARA POR AÍ... TEM MAIS 5 BÔNUS!</h2>
         <div className="space-y-3 sm:space-y-3.5">
           {[
@@ -317,7 +341,7 @@ export default function App() {
             { img: 'https://matematica.aprendizadodivertido01.com/imagens/bonus3.webp', title: 'BÔNUS 03: GUIA RÁPIDO PARA PAIS', desc: 'Orientações práticas para aplicar o material com leveza, sem atrito.' }
           ].map((item, i) => (
             <div key={i} className="bg-sky-50/80 p-3 sm:p-3.5 rounded-xl border border-sky-100 flex gap-3 sm:gap-4 items-center">
-              <img src={item.img} alt={item.title} className="w-16 sm:w-20 rounded-lg shadow-sm shrink-0" />
+              <img src={item.img} alt={item.title} loading="lazy" decoding="async" className="w-16 sm:w-20 rounded-lg shadow-sm shrink-0" />
               <div className="text-left flex-1 min-w-0">
                 <h3 className="font-black text-sm sm:text-base leading-tight text-sky-950 mb-0.5">{item.title}</h3>
                 <p className="text-xs sm:text-sm text-gray-600 leading-snug line-clamp-2">{item.desc}</p>
@@ -329,7 +353,7 @@ export default function App() {
       </section>
 
       {/* Pricing / Offers: High Conversion Focus */}
-      <section id="ofertas" className="container mx-auto px-4 py-10 sm:py-16 scroll-mt-6 max-w-4xl">
+      <section id="ofertas" className="below-fold-opt container mx-auto px-4 py-10 sm:py-16 scroll-mt-6 max-w-4xl">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-sky-950 mb-2 sm:mb-3">
             O PREÇO DE UM LANCHE PARA MUDAR O FUTURO DELE.
@@ -343,7 +367,7 @@ export default function App() {
           {/* Basic */}
           <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col justify-between order-2 md:order-1">
             <div>
-              <img src="https://matematica.aprendizadodivertido01.com/imagens/produtoprincipal.webp" alt="Básico" className="rounded-xl mb-4 w-28 sm:w-32 mx-auto shadow-md border border-gray-100" />
+              <img src="https://matematica.aprendizadodivertido01.com/imagens/produtoprincipal.webp" alt="Básico" loading="lazy" decoding="async" className="rounded-xl mb-4 w-28 sm:w-32 mx-auto shadow-md border border-gray-100" />
               <h3 className="text-lg sm:text-xl font-black text-center mb-3 text-gray-900">PLANO BÁSICO</h3>
               <ul className="space-y-1.5 mb-5 text-gray-700 font-medium text-xs sm:text-sm">
                 {['360 atividades (PDF)', '1º ao 5º ano', 'Visuais e intuitivas', 'Prontas para imprimir', 'Foco em resultados'].map(item => (
@@ -360,6 +384,8 @@ export default function App() {
                 <p className="text-3xl sm:text-4xl font-black text-sky-900">R$ 29,90</p>
               </div>
               <button 
+                onPointerEnter={() => { void preloadPrizeWheel(); }}
+                onTouchStart={() => { void preloadPrizeWheel(); }}
                 onClick={() => setIsDiscountModalOpen(true)}
                 className="w-full bg-slate-900 hover:bg-black text-white font-black text-sm sm:text-base py-3 px-4 rounded-xl active:scale-95 transition-all duration-200 cursor-pointer uppercase tracking-wider shadow-sm"
               >
@@ -383,7 +409,7 @@ export default function App() {
               {hasDiscountApplied ? '🎉 PRÊMIO DA ROLETA APLICADO!' : '🔥 MAIS VENDIDO'}
             </div>
             <div>
-              <img src="https://matematica.aprendizadodivertido01.com/imagens/mockup.webp" alt="Completo" className="rounded-xl mb-4 w-28 sm:w-32 mx-auto shadow-xl border border-sky-800" />
+              <img src="https://matematica.aprendizadodivertido01.com/imagens/mockup.webp" alt="Completo" loading="lazy" decoding="async" className="rounded-xl mb-4 w-28 sm:w-32 mx-auto shadow-xl border border-sky-800" />
               <h3 className="text-lg sm:text-xl font-black text-center mb-1 text-white">COMBO COMPLETO</h3>
               <p className="text-center font-bold text-amber-300 mb-4 uppercase tracking-wide text-[11px] sm:text-xs">
                 {hasDiscountApplied ? 'DESCONTO DA ROLETA PREMIADA' : 'MAIS CONTEÚDO, MAIS RESULTADO'}
@@ -438,7 +464,7 @@ export default function App() {
         </div>
       </section>
       {/* Professional 7-Day Guarantee Section */}
-      <section className="bg-gradient-to-b from-sky-950 via-slate-900 to-sky-950 text-white py-8 sm:py-14 px-4 border-t border-sky-800/40 relative overflow-hidden">
+      <section className="below-fold-opt bg-gradient-to-b from-sky-950 via-slate-900 to-sky-950 text-white py-8 sm:py-14 px-4 border-t border-sky-800/40 relative overflow-hidden">
         {/* Subtle decorative background glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-96 h-80 sm:h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -543,7 +569,7 @@ export default function App() {
       </section>
 
       {/* FAQ Section */}
-      <section className="bg-sky-950 text-white py-8 sm:py-14 px-4 border-t border-sky-900/40">
+      <section className="below-fold-opt bg-sky-950 text-white py-8 sm:py-14 px-4 border-t border-sky-900/40">
         <div className="container mx-auto max-w-2xl">
           <h2 className="text-xl sm:text-3xl font-black mb-5 sm:mb-8 text-center text-white">DÚVIDAS FREQUENTES</h2>
           <div className="space-y-3 text-left text-sky-950">
@@ -566,7 +592,7 @@ export default function App() {
       </section>
 
       {/* Footer */}
-      <footer className="container mx-auto px-4 py-8 text-center text-gray-500 text-[11px] sm:text-xs mt-4 sm:mt-8 border-t border-gray-100">
+      <footer className="below-fold-opt container mx-auto px-4 py-8 text-center text-gray-500 text-[11px] sm:text-xs mt-4 sm:mt-8 border-t border-gray-100">
         <p className="mb-2 font-bold">Copyright © 2026 | Todos os direitos reservados.</p>
         <p className="max-w-3xl mx-auto leading-relaxed">Material educacional independente. Este site não é afiliado ou endossado pelo Facebook™, Instagram™, Google™, Mojang Synergies AB ou Microsoft™. As referências estéticas são utilizadas exclusivamente para fins de engajamento pedagógico. O material é um recurso complementar e não substitui o acompanhamento escolar ou profissional quando necessário.</p>
       </footer>
