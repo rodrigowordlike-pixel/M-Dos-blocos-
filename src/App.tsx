@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Lock, ShieldCheck, CheckCircle2, RotateCcw, BadgeCheck, ArrowRight, ChevronDown, Volume2, VolumeX } from 'lucide-react';
 import { SalesToast } from './components/SalesToast';
-import { DiscountModal } from './components/DiscountModal';
+import { PrizeWheelModal } from './components/PrizeWheelModal';
 
-const CHECKOUT_COMBO_URL = 'https://pay.wiapy.com/6af279e84fbe72f8a113dc63'; // R$ 37,90
-const CHECKOUT_BASIC_URL = 'https://pay.wiapy.com/6af279e84fbe72f8a113dc63'; // R$ 29,90
-const CHECKOUT_DISCOUNT_URL = 'https://pay.wiapy.com/JCduapP0LGGE'; // R$ 34,11 (Desconto 10%)
+const CHECKOUT_COMBO_URL = 'https://pay.wiapy.com/iHnQlTMv88d'; // R$ 37,90
+const CHECKOUT_BASIC_URL = 'https://pay.wiapy.com/JCduapP0LGGE'; // R$ 29,90
+const CHECKOUT_DISCOUNT_URL = 'https://pay.wiapy.com/fHTFBT-7RCn'; // R$ 35,90 (Roleta Premiada)
 
 declare global {
   interface Window {
@@ -130,10 +130,10 @@ export default function App() {
     }
   };
 
-  const handleAcceptDiscount = () => {
-    trackInitiateCheckout('Combo Completo com Desconto', 34.11);
-    setIsDiscountModalOpen(false);
+  const handleClaimPrize = () => {
+    trackInitiateCheckout('Combo Completo Roleta Premiada', 35.90);
     setHasDiscountApplied(true);
+    setIsDiscountModalOpen(false);
     window.location.href = CHECKOUT_DISCOUNT_URL;
   };
 
@@ -148,13 +148,13 @@ export default function App() {
       {/* Real-time Discreet Social Proof Purchase Pop-up */}
       <SalesToast />
 
-      {/* Pop-up de Desconto de 10% no Plano Básico */}
-      <DiscountModal 
+      {/* Roleta Premiada ao clicar no Plano Básico */}
+      <PrizeWheelModal 
         isOpen={isDiscountModalOpen}
         onClose={() => setIsDiscountModalOpen(false)}
-        onAcceptDiscount={handleAcceptDiscount}
+        onClaimPrize={handleClaimPrize}
         onProceedBasic={handleProceedBasic}
-        discountCheckoutUrl={CHECKOUT_DISCOUNT_URL}
+        prizeCheckoutUrl={CHECKOUT_DISCOUNT_URL}
         basicCheckoutUrl={CHECKOUT_BASIC_URL}
       />
       
@@ -380,13 +380,13 @@ export default function App() {
                 ? 'bg-emerald-400 text-sky-950 animate-bounce' 
                 : 'bg-amber-400 text-sky-950 animate-pulse'
             }`}>
-              {hasDiscountApplied ? '🎉 10% OFF EXCLUSIVO APLICADO!' : '🔥 MAIS VENDIDO'}
+              {hasDiscountApplied ? '🎉 PRÊMIO DA ROLETA APLICADO!' : '🔥 MAIS VENDIDO'}
             </div>
             <div>
               <img src="https://matematica.aprendizadodivertido01.com/imagens/mockup.webp" alt="Completo" className="rounded-xl mb-4 w-28 sm:w-32 mx-auto shadow-xl border border-sky-800" />
               <h3 className="text-lg sm:text-xl font-black text-center mb-1 text-white">COMBO COMPLETO</h3>
               <p className="text-center font-bold text-amber-300 mb-4 uppercase tracking-wide text-[11px] sm:text-xs">
-                {hasDiscountApplied ? 'OFERTA VIP COM 10% DE DESCONTO' : 'MAIS CONTEÚDO, MAIS RESULTADO'}
+                {hasDiscountApplied ? 'DESCONTO DA ROLETA PREMIADA' : 'MAIS CONTEÚDO, MAIS RESULTADO'}
               </p>
               <ul className="space-y-1.5 mb-5 text-white font-medium text-xs sm:text-sm">
                 {['Tudo do Básico', '100 Probleminhas (Extra)', 'Tabuada Visual (Extra)', '🎁 Mapa de Progresso', '🎁 Cartões de Recompensa', '🎁 Guia Rápido Pais', 'Acesso Vitalício'].map(item => (
@@ -405,9 +405,9 @@ export default function App() {
                       <p className="text-xs text-sky-300 line-through">de R$ 79,90</p>
                       <p className="text-xs text-sky-300 line-through font-semibold">por R$ 37,90</p>
                     </div>
-                    <p className="text-4xl sm:text-5xl font-black text-emerald-300">R$ 34,11</p>
+                    <p className="text-4xl sm:text-5xl font-black text-emerald-300">R$ 35,90</p>
                     <p className="text-[10px] sm:text-xs text-emerald-300 mt-0.5 font-bold uppercase tracking-wider">
-                      ⚡ 10% de desconto ativado no PIX ou Cartão
+                      ⚡ Desconto da roleta ativado no PIX ou Cartão
                     </p>
                   </>
                 ) : (
@@ -420,14 +420,14 @@ export default function App() {
               </div>
               <a 
                 href={hasDiscountApplied ? CHECKOUT_DISCOUNT_URL : CHECKOUT_COMBO_URL}
-                onClick={() => trackInitiateCheckout(hasDiscountApplied ? 'Combo Completo com Desconto' : 'Combo Completo', hasDiscountApplied ? 34.11 : 37.90)}
+                onClick={() => trackInitiateCheckout(hasDiscountApplied ? 'Combo Completo Roleta Premiada' : 'Combo Completo', hasDiscountApplied ? 35.90 : 37.90)}
                 className={`w-full font-black text-base sm:text-lg py-3.5 px-5 rounded-xl shadow-md active:scale-95 transition-all duration-200 cursor-pointer uppercase tracking-wider flex items-center justify-center gap-2 text-center ${
                   hasDiscountApplied 
                     ? 'bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-300 hover:to-green-400 text-sky-950 shadow-emerald-400/30' 
                     : 'bg-amber-400 hover:bg-amber-300 text-sky-950 shadow-amber-400/30'
                 }`}
               >
-                <span>{hasDiscountApplied ? 'QUERO O COMBO POR R$ 34,11' : 'QUERO O COMBO COMPLETO'}</span>
+                <span>{hasDiscountApplied ? 'QUERO O COMBO POR R$ 35,90' : 'QUERO O COMBO COMPLETO'}</span>
                 <ArrowRight className="w-4 h-4 shrink-0" />
               </a>
               <p className="text-center text-sky-200 mt-2.5 text-[11px] sm:text-xs font-semibold">
@@ -527,10 +527,10 @@ export default function App() {
             <div className="mt-5 pt-4 border-t border-sky-800/60">
               <a 
                 href={hasDiscountApplied ? CHECKOUT_DISCOUNT_URL : CHECKOUT_COMBO_URL}
-                onClick={() => trackInitiateCheckout(hasDiscountApplied ? 'Combo Completo com Desconto' : 'Combo Completo', hasDiscountApplied ? 34.11 : 37.90)}
+                onClick={() => trackInitiateCheckout(hasDiscountApplied ? 'Combo Completo Roleta Premiada' : 'Combo Completo', hasDiscountApplied ? 35.90 : 37.90)}
                 className="w-full max-w-xs sm:max-w-sm mx-auto bg-amber-400 hover:bg-amber-300 text-sky-950 font-black text-base sm:text-lg py-3.5 px-5 rounded-xl shadow-md shadow-amber-400/30 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider text-center"
               >
-                <span>{hasDiscountApplied ? 'QUERO AGORA POR R$ 34,11' : 'QUERO AGORA'}</span>
+                <span>{hasDiscountApplied ? 'QUERO AGORA POR R$ 35,90' : 'QUERO AGORA'}</span>
                 <ArrowRight className="w-4 h-4 shrink-0" />
               </a>
               <p className="text-[11px] sm:text-xs text-sky-200/80 mt-2 font-medium text-center">
