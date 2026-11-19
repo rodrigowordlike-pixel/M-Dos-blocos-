@@ -386,8 +386,10 @@ export function PrizeWheelModal({
               <div className="bg-gradient-to-b from-sky-950 to-sky-900 text-white rounded-2xl p-4 mb-4 border-2 border-amber-400/70 shadow-inner">
                 <div className="flex items-center justify-center gap-3.5 mb-3">
                   <img
-                    src="https://matematica.aprendizadodivertido01.com/imagens/mockup.webp"
+                    src="/assets/images/mockup.webp"
                     alt="Combo Completo Premiado"
+                    loading="lazy"
+                    decoding="async"
                     className="w-16 h-16 object-contain rounded-lg border border-white/20 bg-white/5 shrink-0"
                   />
                   <div className="text-left">

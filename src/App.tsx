@@ -52,7 +52,7 @@ export default function App() {
   const heroVideoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setMountDeferredUi(true), 1200);
+    const timer = setTimeout(() => setMountDeferredUi(true), 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -93,9 +93,9 @@ export default function App() {
         });
     };
 
-    // Inicia vídeo logo após a primeira pintura para não competir com o LCP no 4G/celular
+    // Aguarda primeira pintura do poster (LCP) antes de iniciar buffer do vídeo no 4G/celular
     const rafId = requestAnimationFrame(() => {
-      setTimeout(tryPlay, 60);
+      setTimeout(tryPlay, 280);
     });
 
     const observer = new IntersectionObserver(
@@ -223,12 +223,12 @@ export default function App() {
               <video
                 ref={heroVideoRef}
                 src="/assets/video-demonstracao.mp4"
-                poster="/assets/video-poster.jpg"
+                poster="/assets/video-poster.webp"
                 autoPlay
                 muted={isVideoMuted}
                 loop
                 playsInline
-                preload="metadata"
+                preload="none"
                 onClick={handleVideoSurfaceClick}
                 className="w-full h-full object-cover bg-black cursor-pointer"
               />
@@ -311,7 +311,7 @@ export default function App() {
       <section id="problema-metodo" className="below-fold-opt container mx-auto px-4 py-8 sm:py-14 scroll-mt-6">
         <div className="grid md:grid-cols-2 gap-6 sm:gap-10 items-center max-w-4xl mx-auto">
           <div className="bg-sky-50 p-3 sm:p-4 rounded-2xl border border-sky-100 max-w-[200px] sm:max-w-xs mx-auto md:max-w-none">
-             <img src="https://matematica.aprendizadodivertido01.com/imagens/produtoprincipal.webp" alt="Atividades" loading="lazy" decoding="async" className="rounded-xl shadow-md w-36 sm:w-48 mx-auto" />
+             <img src="/assets/images/produtoprincipal.webp" alt="Atividades" loading="lazy" decoding="async" className="rounded-xl shadow-md w-36 sm:w-48 mx-auto" />
           </div>
           <div className="space-y-3 sm:space-y-5 text-left">
             <h2 className="text-xl sm:text-3xl font-black text-sky-950 leading-tight">O PROBLEMA NÃO É O SEU FILHO, É O MÉTODO!</h2>
@@ -328,7 +328,7 @@ export default function App() {
           <h2 className="text-xl sm:text-3xl font-black text-sky-950 mb-4 sm:mb-6">VEJA QUEM JÁ VIU A MUDANÇA:</h2>
           <div className="flex gap-3 sm:gap-5 overflow-x-auto pb-3 sm:pb-5 snap-x snap-mandatory scrollbar-hide px-1">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <img key={i} src={`https://matematica.aprendizadodivertido01.com/imagens/PROVASOCIAL%20(${i}).webp`} alt={`Relato ${i}`} loading="lazy" decoding="async" className="snap-center h-[360px] xs:h-[400px] sm:h-[480px] rounded-2xl shadow-sm shrink-0 border border-gray-200/70" />
+              <img key={i} src={`/assets/images/provasocial-${i}.webp`} alt={`Relato ${i}`} loading="lazy" decoding="async" className="snap-center h-[360px] xs:h-[400px] sm:h-[480px] rounded-2xl shadow-sm shrink-0 border border-gray-200/70" />
             ))}
           </div>
           <p className="text-center font-bold mt-2 text-sky-700 text-xs sm:text-sm animate-pulse">👈 Arraste para o lado para ler os relatos →</p>
@@ -340,11 +340,11 @@ export default function App() {
         <h2 className="text-xl sm:text-3xl font-black mb-5 sm:mb-8 text-center">E NÃO PARA POR AÍ... TEM MAIS 5 BÔNUS!</h2>
         <div className="space-y-3 sm:space-y-3.5">
           {[
-            { img: 'https://matematica.aprendizadodivertido01.com/imagens/probleminhas.webp', title: 'EXTRA 01: 100 PROBLEMINHAS', desc: 'Aprende a interpretar problemas reais e desenvolver raciocínio lógico brincando.' },
-            { img: 'https://matematica.aprendizadodivertido01.com/imagens/tabuada.webp', title: 'EXTRA 02: TABUADA VISUAL', desc: 'Chega de decorar sem entender. Multiplicação de forma intuitiva e memorável.' },
-            { img: 'https://matematica.aprendizadodivertido01.com/imagens/bonus1.webp', title: 'BÔNUS 01: MAPA DE PROGRESSO', desc: 'A criança visualiza cada conquista. Motivação contínua para avançar.' },
-            { img: 'https://matematica.aprendizadodivertido01.com/imagens/bonus2.webp', title: 'BÔNUS 02: CARTÕES DE RECOMPENSA', desc: 'Reforce o esforço e pequenas metas com recompensas divertidas.' },
-            { img: 'https://matematica.aprendizadodivertido01.com/imagens/bonus3.webp', title: 'BÔNUS 03: GUIA RÁPIDO PARA PAIS', desc: 'Orientações práticas para aplicar o material com leveza, sem atrito.' }
+            { img: '/assets/images/probleminhas.webp', title: 'EXTRA 01: 100 PROBLEMINHAS', desc: 'Aprende a interpretar problemas reais e desenvolver raciocínio lógico brincando.' },
+            { img: '/assets/images/tabuada.webp', title: 'EXTRA 02: TABUADA VISUAL', desc: 'Chega de decorar sem entender. Multiplicação de forma intuitiva e memorável.' },
+            { img: '/assets/images/bonus1.webp', title: 'BÔNUS 01: MAPA DE PROGRESSO', desc: 'A criança visualiza cada conquista. Motivação contínua para avançar.' },
+            { img: '/assets/images/bonus2.webp', title: 'BÔNUS 02: CARTÕES DE RECOMPENSA', desc: 'Reforce o esforço e pequenas metas com recompensas divertidas.' },
+            { img: '/assets/images/bonus3.webp', title: 'BÔNUS 03: GUIA RÁPIDO PARA PAIS', desc: 'Orientações práticas para aplicar o material com leveza, sem atrito.' }
           ].map((item, i) => (
             <div key={i} className="bg-sky-50/80 p-3 sm:p-3.5 rounded-xl border border-sky-100 flex gap-3 sm:gap-4 items-center">
               <img src={item.img} alt={item.title} loading="lazy" decoding="async" className="w-16 sm:w-20 rounded-lg shadow-sm shrink-0" />
@@ -373,7 +373,7 @@ export default function App() {
           {/* Basic */}
           <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col justify-between order-2 md:order-1">
             <div>
-              <img src="https://matematica.aprendizadodivertido01.com/imagens/produtoprincipal.webp" alt="Básico" loading="lazy" decoding="async" className="rounded-xl mb-4 w-28 sm:w-32 mx-auto shadow-md border border-gray-100" />
+              <img src="/assets/images/produtoprincipal.webp" alt="Básico" loading="lazy" decoding="async" className="rounded-xl mb-4 w-28 sm:w-32 mx-auto shadow-md border border-gray-100" />
               <h3 className="text-lg sm:text-xl font-black text-center mb-3 text-gray-900">PLANO BÁSICO</h3>
               <ul className="space-y-1.5 mb-5 text-gray-700 font-medium text-xs sm:text-sm">
                 {['360 atividades (PDF)', '1º ao 5º ano', 'Visuais e intuitivas', 'Prontas para imprimir', 'Foco em resultados'].map(item => (
@@ -415,7 +415,7 @@ export default function App() {
               {hasDiscountApplied ? '🎉 PRÊMIO DA ROLETA APLICADO!' : '🔥 MAIS VENDIDO'}
             </div>
             <div>
-              <img src="https://matematica.aprendizadodivertido01.com/imagens/mockup.webp" alt="Completo" loading="lazy" decoding="async" className="rounded-xl mb-4 w-28 sm:w-32 mx-auto shadow-xl border border-sky-800" />
+              <img src="/assets/images/mockup.webp" alt="Completo" loading="lazy" decoding="async" className="rounded-xl mb-4 w-28 sm:w-32 mx-auto shadow-xl border border-sky-800" />
               <h3 className="text-lg sm:text-xl font-black text-center mb-1 text-white">COMBO COMPLETO</h3>
               <p className="text-center font-bold text-amber-300 mb-4 uppercase tracking-wide text-[11px] sm:text-xs">
                 {hasDiscountApplied ? 'DESCONTO DA ROLETA PREMIADA' : 'MAIS CONTEÚDO, MAIS RESULTADO'}
