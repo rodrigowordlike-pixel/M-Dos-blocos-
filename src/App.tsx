@@ -13,23 +13,34 @@ const CHECKOUT_COMBO_URL = 'https://pay.wiapy.com/iHnQlTMv88d'; // R$ 37,90
 const CHECKOUT_BASIC_URL = 'https://pay.wiapy.com/JCduapP0LGGE'; // R$ 29,90
 const CHECKOUT_DISCOUNT_URL = 'https://pay.wiapy.com/fHTFBT-7RCn'; // R$ 35,90 (Roleta Premiada)
 
-declare global {
-  interface Window {
-    fbq?: (...args: unknown[]) => void;
-  }
-}
+const TRACKING_PARAM_KEYS = [
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+  'fbclid',
+  'gclid',
+  'ttclid',
+  'src',
+];
 
-const trackInitiateCheckout = (contentName: string, value: number) => {
-  if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-    try {
-      window.fbq('track', 'InitiateCheckout', {
-        content_name: contentName,
-        value: value,
-        currency: 'BRL',
-      });
-    } catch {
-      // Ignorar caso bloqueado por adblocker
-    }
+const decorateCheckoutUrl = (baseUrl: string): string => {
+  if (typeof window === 'undefined') return baseUrl;
+  try {
+    const target = new URL(baseUrl);
+    const currentParams = new URLSearchParams(window.location.search);
+
+    TRACKING_PARAM_KEYS.forEach((key) => {
+      const value = currentParams.get(key) || window.localStorage.getItem(key);
+      if (value && value !== 'null' && value !== 'undefined' && !target.searchParams.has(key)) {
+        target.searchParams.set(key, value);
+      }
+    });
+
+    return target.toString();
+  } catch {
+    return baseUrl;
   }
 };
 
@@ -147,16 +158,11 @@ export default function App() {
   };
 
   const handleClaimPrize = () => {
-    trackInitiateCheckout('Combo Completo Roleta Premiada', 35.90);
     setHasDiscountApplied(true);
-    setIsDiscountModalOpen(false);
-    window.location.href = CHECKOUT_DISCOUNT_URL;
   };
 
   const handleProceedBasic = () => {
-    trackInitiateCheckout('Plano Básico', 29.90);
-    setIsDiscountModalOpen(false);
-    window.location.href = CHECKOUT_BASIC_URL;
+    // Navegação natural pelo <a> preservando UTMs e evento unificado da Utmify
   };
 
   return (
@@ -176,8 +182,8 @@ export default function App() {
             onClose={() => setIsDiscountModalOpen(false)}
             onClaimPrize={handleClaimPrize}
             onProceedBasic={handleProceedBasic}
-            prizeCheckoutUrl={CHECKOUT_DISCOUNT_URL}
-            basicCheckoutUrl={CHECKOUT_BASIC_URL}
+            prizeCheckoutUrl={decorateCheckoutUrl(CHECKOUT_DISCOUNT_URL)}
+            basicCheckoutUrl={decorateCheckoutUrl(CHECKOUT_BASIC_URL)}
           />
         </Suspense>
       )}
@@ -445,8 +451,7 @@ export default function App() {
                 )}
               </div>
               <a 
-                href={hasDiscountApplied ? CHECKOUT_DISCOUNT_URL : CHECKOUT_COMBO_URL}
-                onClick={() => trackInitiateCheckout(hasDiscountApplied ? 'Combo Completo Roleta Premiada' : 'Combo Completo', hasDiscountApplied ? 35.90 : 37.90)}
+                href={decorateCheckoutUrl(hasDiscountApplied ? CHECKOUT_DISCOUNT_URL : CHECKOUT_COMBO_URL)}
                 className={`w-full font-black text-base sm:text-lg py-3.5 px-5 rounded-xl shadow-md active:scale-95 transition-all duration-200 cursor-pointer uppercase tracking-wider flex items-center justify-center gap-2 text-center ${
                   hasDiscountApplied 
                     ? 'bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-300 hover:to-green-400 text-sky-950 shadow-emerald-400/30' 
@@ -552,8 +557,7 @@ export default function App() {
             {/* CTA Button inside the Guarantee fold */}
             <div className="mt-5 pt-4 border-t border-sky-800/60">
               <a 
-                href={hasDiscountApplied ? CHECKOUT_DISCOUNT_URL : CHECKOUT_COMBO_URL}
-                onClick={() => trackInitiateCheckout(hasDiscountApplied ? 'Combo Completo Roleta Premiada' : 'Combo Completo', hasDiscountApplied ? 35.90 : 37.90)}
+                href={decorateCheckoutUrl(hasDiscountApplied ? CHECKOUT_DISCOUNT_URL : CHECKOUT_COMBO_URL)}
                 className="w-full max-w-xs sm:max-w-sm mx-auto bg-amber-400 hover:bg-amber-300 text-sky-950 font-black text-base sm:text-lg py-3.5 px-5 rounded-xl shadow-md shadow-amber-400/30 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider text-center"
               >
                 <span>{hasDiscountApplied ? 'QUERO AGORA POR R$ 35,90' : 'QUERO AGORA'}</span>
