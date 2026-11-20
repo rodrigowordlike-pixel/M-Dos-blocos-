@@ -81,13 +81,13 @@ export function SalesToast() {
   return (
     <div
       aria-live="polite"
-      className={`fixed top-2.5 sm:top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out pointer-events-none ${
+      className={`fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 sm:left-4 sm:translate-x-0 z-40 transition-all duration-500 ease-out pointer-events-none ${
         isVisible
           ? 'opacity-100 translate-y-0 scale-100'
-          : 'opacity-0 -translate-y-4 scale-95'
+          : 'opacity-0 translate-y-4 scale-95'
       }`}
     >
-      <div className="pointer-events-auto bg-white/95 backdrop-blur-md text-gray-900 border border-emerald-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.15)] rounded-full pl-2 pr-3 py-1.5 flex items-center gap-2.5 max-w-[340px] sm:max-w-sm">
+      <div className="pointer-events-auto bg-white/95 backdrop-blur-md text-gray-900 border border-emerald-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.15)] rounded-full pl-2 pr-3 py-1.5 flex items-center gap-2.5 max-w-[330px] sm:max-w-sm">
         {/* Verified icon bubble */}
         <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
           <CheckCircle2 className="w-4 h-4 text-white" />

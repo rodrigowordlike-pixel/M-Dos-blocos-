@@ -409,7 +409,7 @@ export function PrizeWheelModal({
                 <div className="grid grid-cols-2 gap-1.5 pt-2.5 border-t border-sky-800 text-[11px] text-left text-sky-100 font-medium">
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span>360 Atividades (1º ao 5º)</span>
+                    <span>360+ Atividades (1º ao 5º)</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
@@ -421,7 +421,7 @@ export function PrizeWheelModal({
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span>+3 Bônus + Vitalício</span>
+                    <span>Mapa + Cartões + Guia</span>
                   </div>
                 </div>
               </div>
@@ -433,7 +433,7 @@ export function PrizeWheelModal({
                 className="w-full bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-400 hover:to-green-500 text-white font-black text-base sm:text-lg py-4 px-5 rounded-2xl shadow-[0_8px_24px_rgba(16,185,129,0.4)] border-b-4 border-emerald-700 active:border-b-0 active:translate-y-0.5 transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider"
               >
                 <Gift className="w-5 h-5 text-amber-300 shrink-0" />
-                <span>RESGATAR COMBO POR R$ 35,90</span>
+                <span>QUERO O COMBO POR R$ 35,90</span>
                 <ArrowRight className="w-5 h-5 shrink-0" />
               </a>
 
@@ -447,7 +447,7 @@ export function PrizeWheelModal({
 
               <div className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-gray-500 font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Acesso imediato no e-mail · Garantia total de 7 dias</span>
+                <span>Acesso imediato por e-mail · Garantia total de 7 dias</span>
               </div>
             </div>
           )}
