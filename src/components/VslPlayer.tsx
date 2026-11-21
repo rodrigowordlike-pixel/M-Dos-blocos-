@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ArrowRight, CheckCircle2, Pause, Play, RotateCcw, Volume2, VolumeOff } from 'lucide-react';
 
 interface VslPlayerProps {
@@ -14,35 +14,6 @@ export function VslPlayer({ checkoutUrl, ctaLabel = 'QUERO O COMBO COMPLETO' }: 
   const [isMuted, setIsMuted] = useState(true);
   const [hasEnded, setHasEnded] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
-
-  useEffect(() => {
-    const videoEl = videoRef.current;
-    if (!videoEl) return;
-
-    // Executa apenas na montagem inicial para prévia silenciosa (nunca re-muta após o clique do usuário)
-    videoEl.defaultMuted = true;
-    videoEl.muted = true;
-    videoEl.setAttribute('muted', '');
-    videoEl.setAttribute('playsinline', '');
-    videoEl.setAttribute('webkit-playsinline', '');
-
-    let previewStarted = false;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !previewStarted && !hasStartedRef.current) {
-            previewStarted = true;
-            videoEl.play().catch(() => {});
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    observer.observe(videoEl);
-    return () => observer.disconnect();
-  }, []);
 
   const handleStartVslWithAudio = () => {
     const videoEl = videoRef.current;
@@ -147,7 +118,7 @@ export function VslPlayer({ checkoutUrl, ctaLabel = 'QUERO O COMBO COMPLETO' }: 
   return (
     <div className="w-full max-w-[238px] sm:max-w-[276px] mx-auto">
       <div className="rounded-2xl overflow-hidden bg-neutral-950 border-2 border-white/25 shadow-[0_20px_50px_rgba(0,0,0,0.45)]">
-        {/* Área do vídeo 9:16 */}
+        {/* Área do vídeo 9:16: zero download de MP4 até o visitante clicar em Play */}
         <div
           onClick={handleVideoSurfaceClick}
           role="button"
@@ -172,7 +143,6 @@ export function VslPlayer({ checkoutUrl, ctaLabel = 'QUERO O COMBO COMPLETO' }: 
             src="/assets/video-demonstracao.mp4"
             poster="/assets/video-poster.webp"
             muted={isMuted}
-            loop={!hasStartedWithAudio}
             playsInline
             preload="none"
             onVolumeChange={(e) => {
@@ -196,18 +166,27 @@ export function VslPlayer({ checkoutUrl, ctaLabel = 'QUERO O COMBO COMPLETO' }: 
             className="w-full h-full object-cover bg-neutral-900"
           />
 
-          {/* Estado 1: Prévia inicial convidativa com Play circular e áudio no primeiro toque */}
+          {/* Estado 1: Pôster LCP instantâneo (22 KB) + Play com áudio no primeiro toque */}
           {!hasStartedWithAudio && (
-            <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-center p-4 text-center">
-              <div className="relative flex items-center justify-center">
-                <span className="absolute w-20 h-20 rounded-full border-2 border-white/40 animate-ping" />
-                <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full border-[3px] border-white bg-black/60 backdrop-blur-xs flex items-center justify-center shadow-[0_0_24px_rgba(0,0,0,0.65)] transition-transform duration-200 hover:scale-105">
+            <div className="absolute inset-0">
+              <img
+                src="/assets/video-poster.webp"
+                alt="Prévia do caderno Matemática no Mundo dos Blocos impresso"
+                width={320}
+                height={568}
+                fetchPriority="high"
+                loading="eager"
+                decoding="sync"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center p-4 text-center">
+                <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full border-[3px] border-white bg-black/60 flex items-center justify-center shadow-[0_0_24px_rgba(0,0,0,0.65)] transition-transform duration-200 hover:scale-105">
                   <Play className="w-7 h-7 sm:w-8 sm:h-8 text-white fill-white ml-0.5" />
                 </div>
+                <p className="mt-3.5 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-white bg-black/65 px-3 py-1.5 rounded-lg border border-white/25 shadow">
+                  Toque para ver por dentro com áudio
+                </p>
               </div>
-              <p className="mt-3.5 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-white bg-black/55 px-3 py-1.5 rounded-lg border border-white/20 shadow">
-                Toque para ver por dentro com áudio
-              </p>
             </div>
           )}
 

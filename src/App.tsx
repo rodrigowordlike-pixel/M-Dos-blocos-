@@ -207,8 +207,11 @@ export default function App() {
               <img
                 src="/assets/images/produtoprincipal.webp"
                 alt="Capa do caderno Matemática no Mundo dos Blocos"
+                width={340}
+                height={480}
                 loading="lazy"
                 decoding="async"
+                fetchPriority="low"
                 className="rounded-xl shadow-md w-full h-auto"
               />
             </div>
@@ -287,8 +290,9 @@ export default function App() {
                   alt="Páginas reais do caderno Matemática no Mundo dos Blocos e materiais extras do Combo Completo"
                   loading="lazy"
                   decoding="async"
-                  width={720}
-                  height={720}
+                  fetchPriority="low"
+                  width={600}
+                  height={600}
                   className="w-full h-auto block"
                 />
               </div>
@@ -320,8 +324,11 @@ export default function App() {
                       <img
                         src={bonus.img}
                         alt={bonus.title}
+                        width={180}
+                        height={254}
                         loading="lazy"
                         decoding="async"
+                        fetchPriority="low"
                         className="w-12 h-14 object-cover rounded-lg shrink-0 border border-gray-100"
                       />
                       <div className="text-left min-w-0">
@@ -357,9 +364,12 @@ export default function App() {
                 key={i}
                 src={`/assets/images/provasocial-${i}.webp`}
                 alt={`Relato de família sobre o material ${i}`}
+                width={428}
+                height={760}
                 loading="lazy"
                 decoding="async"
-                className="snap-center h-[350px] sm:h-[440px] rounded-2xl shadow-sm shrink-0 border border-gray-200"
+                fetchPriority="low"
+                className="snap-center h-[350px] sm:h-[440px] w-auto rounded-2xl shadow-sm shrink-0 border border-gray-200"
               />
             ))}
           </div>
@@ -466,9 +476,12 @@ export default function App() {
                 <img
                   src="/assets/images/mockup.webp"
                   alt="Combo Completo Matemática no Mundo dos Blocos com todos os bônus"
+                  width={320}
+                  height={320}
                   loading="lazy"
                   decoding="async"
-                  className="rounded-xl w-40 sm:w-48 mx-auto shadow-xl border border-sky-800"
+                  fetchPriority="low"
+                  className="rounded-xl w-40 sm:w-48 h-auto mx-auto shadow-xl border border-sky-800"
                 />
                 <p className="text-[11px] font-bold text-amber-300 mt-2.5">
                   {hasDiscountApplied
