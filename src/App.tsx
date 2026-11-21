@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import {
   Lock,
   ShieldCheck,
@@ -7,10 +7,8 @@ import {
   BadgeCheck,
   ArrowRight,
   ChevronDown,
-  Play,
-  Pause,
-  Volume2,
 } from 'lucide-react';
+import { VslPlayer } from './components/VslPlayer';
 
 const SalesToast = lazy(() =>
   import('./components/SalesToast').then((m) => ({ default: m.SalesToast }))
@@ -58,128 +56,15 @@ const decorateCheckoutUrl = (baseUrl: string): string => {
 export default function App() {
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
   const [hasDiscountApplied, setHasDiscountApplied] = useState(false);
-  const [isVideoMuted, setIsVideoMuted] = useState(true);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [mountDeferredUi, setMountDeferredUi] = useState(false);
-  const heroVideoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setMountDeferredUi(true), 3000);
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const videoEl = heroVideoRef.current;
-    if (!videoEl) return;
-
-    // Garante compatibilidade com autoplay silencioso no iOS Safari, Android e WebViews (Meta/Instagram)
-    videoEl.defaultMuted = true;
-    videoEl.muted = true;
-    videoEl.setAttribute('muted', '');
-    videoEl.setAttribute('playsinline', '');
-    videoEl.setAttribute('webkit-playsinline', '');
-
-    let hasAutoPlayed = false;
-
-    const cleanupListeners = () => {
-      window.removeEventListener('scroll', tryPlay);
-      window.removeEventListener('touchstart', tryPlay);
-      window.removeEventListener('wheel', tryPlay);
-      videoEl.removeEventListener('canplay', tryPlay);
-    };
-
-    const tryPlay = () => {
-      if (hasAutoPlayed || !videoEl.paused) {
-        hasAutoPlayed = true;
-        setIsVideoPlaying(true);
-        cleanupListeners();
-        return;
-      }
-      videoEl
-        .play()
-        .then(() => {
-          hasAutoPlayed = true;
-          setIsVideoPlaying(true);
-          cleanupListeners();
-        })
-        .catch(() => {
-          setIsVideoPlaying(false);
-        });
-    };
-
-    // Aguarda primeira pintura do pôster (LCP) antes de iniciar buffer do vídeo no 4G/celular
-    const rafId = requestAnimationFrame(() => {
-      setTimeout(tryPlay, 280);
-    });
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasAutoPlayed) {
-            tryPlay();
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(videoEl);
-    videoEl.addEventListener('canplay', tryPlay);
-    window.addEventListener('scroll', tryPlay, { passive: true });
-    window.addEventListener('touchstart', tryPlay, { passive: true });
-    window.addEventListener('wheel', tryPlay, { passive: true });
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      observer.disconnect();
-      cleanupListeners();
-    };
-  }, []);
-
-  const handleTogglePlayPause = () => {
-    const videoEl = heroVideoRef.current;
-    if (!videoEl) return;
-
-    if (videoEl.paused) {
-      videoEl
-        .play()
-        .then(() => setIsVideoPlaying(true))
-        .catch(() => {});
-    } else {
-      videoEl.pause();
-      setIsVideoPlaying(false);
-    }
-  };
-
-  const handleToggleVideoSound = () => {
-    const videoEl = heroVideoRef.current;
-    if (!videoEl) return;
-
-    if (isVideoMuted) {
-      videoEl.muted = false;
-      if (videoEl.paused) {
-        videoEl
-          .play()
-          .then(() => setIsVideoPlaying(true))
-          .catch(() => {});
-      }
-      setIsVideoMuted(false);
-    } else {
-      videoEl.muted = true;
-      setIsVideoMuted(true);
-    }
-  };
-
-  const handleVideoSurfaceClick = () => {
-    if (isVideoMuted) {
-      handleToggleVideoSound();
-    } else {
-      handleTogglePlayPause();
-    }
-  };
-
-  const scrollToOffers = () => {
-    const el = document.getElementById('combo-completo') || document.getElementById('ofertas');
+  const scrollToDetails = () => {
+    const el = document.getElementById('material-por-dentro') || document.getElementById('combo-completo');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -221,18 +106,18 @@ export default function App() {
         </Suspense>
       )}
 
-      {/* Primeira dobra (Mobile-First): Promessa direta + Vídeo com controle claro + CTA de compra */}
+      {/* Primeira dobra (Mobile-First): Promessa direta + Imagem completa do material + CTA de compra */}
       <section className="bg-gradient-to-b from-sky-950 via-sky-900 to-sky-800 text-white px-4 pt-6 pb-9 sm:pt-12 sm:pb-14 relative overflow-hidden">
         <div className="container mx-auto max-w-5xl relative z-10 grid grid-cols-1 md:grid-cols-12 md:gap-x-10 md:items-center">
           {/* Bloco 1: Produto, Headline e Promessa Principal */}
-          <div className="md:col-span-7 md:col-start-1 md:row-start-1 text-center md:text-left">
+          <div className="md:col-span-6 md:col-start-1 md:row-start-1 text-center md:text-left">
             <p className="text-xs sm:text-sm font-bold text-amber-300 tracking-wide mb-2.5 flex flex-wrap items-center justify-center md:justify-start gap-x-2 gap-y-1">
               <span>Matemática no Mundo dos Blocos</span>
               <span aria-hidden="true" className="text-sky-400">·</span>
               <span className="text-sky-100 font-semibold">+360 atividades em PDF · 1º ao 5º ano</span>
             </p>
 
-            <h1 className="text-[1.62rem] sm:text-4xl lg:text-[2.65rem] font-black leading-[1.13] mb-3 tracking-tight text-white text-balance">
+            <h1 className="text-[1.6rem] sm:text-4xl lg:text-[2.55rem] font-black leading-[1.13] mb-3 tracking-tight text-white text-balance">
               Tire seu filho das telas com{' '}
               <span className="text-amber-400 underline decoration-amber-400/50 underline-offset-4">
                 +360 atividades de matemática
@@ -246,69 +131,28 @@ export default function App() {
             </p>
           </div>
 
-          {/* Bloco 2: Vídeo real do material impresso com controles claros de Play/Som e legenda visual */}
-          <div className="md:col-span-5 md:col-start-8 md:row-start-1 md:row-span-2 flex flex-col items-center my-5 md:my-0">
-            <div className="w-full max-w-[235px] sm:max-w-[270px] aspect-[9/16] rounded-2xl overflow-hidden shadow-[0_20px_44px_rgba(0,0,0,0.45)] border-2 border-white/25 bg-sky-950 relative">
-              <video
-                ref={heroVideoRef}
-                src="/assets/video-demonstracao.mp4"
-                poster="/assets/video-poster.webp"
-                autoPlay
-                muted={isVideoMuted}
-                loop
-                playsInline
-                preload="none"
-                onPlay={() => setIsVideoPlaying(true)}
-                onPause={() => setIsVideoPlaying(false)}
-                onClick={handleVideoSurfaceClick}
-                className="w-full h-full object-cover bg-black cursor-pointer"
+          {/* Bloco 2: Imagem completa do material (capa + páginas reais + bônus) com carregamento imediato */}
+          <div className="md:col-span-6 md:col-start-7 md:row-start-1 md:row-span-2 flex flex-col items-center my-5 md:my-0">
+            <div className="w-full max-w-[340px] sm:max-w-[430px] rounded-2xl overflow-hidden shadow-[0_20px_44px_rgba(0,0,0,0.45)] border-2 border-amber-400/40 bg-sky-950">
+              <img
+                src="/assets/images/kit-completo-hero.webp"
+                alt="Kit completo Matemática no Mundo dos Blocos com páginas de atividades do 1º ao 5º ano, Tabuada Visual, Probleminhas, Mapa de Progresso e Cartões de Recompensa"
+                width={720}
+                height={720}
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
+                className="w-full h-auto block"
               />
-
-              {/* Barra de controles limpa (sem ícone X confuso) */}
-              <div className="absolute inset-x-2.5 bottom-2.5 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleTogglePlayPause}
-                  aria-label={isVideoPlaying ? 'Pausar demonstração' : 'Reproduzir demonstração'}
-                  className="bg-sky-950/90 hover:bg-sky-950 text-white border border-white/25 backdrop-blur-sm rounded-xl py-2 px-3 flex items-center justify-center gap-1.5 text-xs font-extrabold shadow-lg cursor-pointer transition-colors shrink-0"
-                >
-                  {isVideoPlaying ? (
-                    <>
-                      <Pause className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                      <span>Pausar</span>
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
-                      <span>Assistir</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleToggleVideoSound}
-                  aria-label={isVideoMuted ? 'Ativar som do vídeo' : 'Desativar som do vídeo'}
-                  className={`flex-1 backdrop-blur-sm rounded-xl py-2 px-3 flex items-center justify-center gap-1.5 text-xs font-black uppercase tracking-wide shadow-lg cursor-pointer transition-colors border ${
-                    isVideoMuted
-                      ? 'bg-amber-400 hover:bg-amber-300 text-sky-950 border-amber-300'
-                      : 'bg-sky-950/90 hover:bg-sky-950 text-white border-emerald-400/70'
-                  }`}
-                >
-                  <Volume2 className={`w-4 h-4 shrink-0 ${isVideoMuted ? 'text-sky-950' : 'text-emerald-400'}`} />
-                  <span>{isVideoMuted ? 'Ativar som' : 'Som ativo'}</span>
-                </button>
-              </div>
             </div>
 
-            {/* Legenda visual clara abaixo do vídeo */}
-            <p className="mt-2.5 text-[11px] sm:text-xs font-semibold text-sky-100 bg-sky-950/70 border border-sky-400/30 rounded-lg px-3 py-1.5 text-center max-w-[270px]">
-              Veja por dentro do caderno já impresso (1º ao 5º ano)
+            <p className="mt-2.5 text-[11px] sm:text-xs font-semibold text-sky-100 bg-sky-950/70 border border-sky-400/30 rounded-lg px-3 py-1.5 text-center max-w-[340px] sm:max-w-[430px]">
+              Kit completo em PDF pronto para imprimir quantas vezes quiser
             </p>
           </div>
 
           {/* Bloco 3: Benefícios objetivos e CTA principal visível para iniciar checkout */}
-          <div className="md:col-span-7 md:col-start-1 md:row-start-2 flex flex-col items-center md:items-start text-center md:text-left md:mt-5">
+          <div className="md:col-span-6 md:col-start-1 md:row-start-2 flex flex-col items-center md:items-start text-center md:text-left md:mt-5">
             <ul className="space-y-2 mb-5 text-xs sm:text-sm text-sky-50 font-medium max-w-md md:max-w-none text-left">
               <li className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
@@ -328,7 +172,8 @@ export default function App() {
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span>
                   <strong className="text-white">Combo Completo + 5 Bônus hoje:</strong>{' '}
-                  pagamento único com envio imediato por e-mail e garantia de 7 dias
+                  de <span className="line-through text-sky-300">R$ 79,90</span> por apenas{' '}
+                  <strong className="text-amber-300">{comboPriceLabel}</strong> no pagamento único
                 </span>
               </li>
             </ul>
@@ -347,10 +192,10 @@ export default function App() {
 
             <button
               type="button"
-              onClick={scrollToOffers}
+              onClick={scrollToDetails}
               className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-sky-200 hover:text-amber-300 transition-colors cursor-pointer mt-3.5 underline underline-offset-4 decoration-sky-400/40 hover:decoration-amber-300"
             >
-              <span>Ver o que vem no Combo Completo e os 5 bônus</span>
+              <span>Veja o material impresso por dentro e os 5 bônus</span>
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -474,6 +319,36 @@ export default function App() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* VSL / Demonstração Real em Vídeo: fundo preto + título amarelo de alta curiosidade */}
+      <section
+        id="material-por-dentro"
+        className="below-fold-opt bg-black text-white py-11 sm:py-16 px-4 scroll-mt-6"
+      >
+        <div className="container mx-auto max-w-4xl text-center">
+          <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-amber-400 uppercase tracking-wide leading-tight max-w-2xl mx-auto mb-3 text-balance">
+            VEJA POR DENTRO O MATERIAL MAIS VENDIDO DOS ÚLTIMOS DIAS
+          </h2>
+          <p className="text-sm sm:text-lg text-white/95 font-medium max-w-xl mx-auto mb-7 sm:mb-8 leading-relaxed">
+            Aperte o play e descubra o que você recebe — e por que tantas crianças estão trocando as telas por essas folhas impressas
+          </p>
+
+          <div className="flex flex-col items-center">
+            <VslPlayer checkoutUrl={activeComboUrl} priceLabel={comboPriceLabel} />
+
+            <a
+              href={activeComboUrl}
+              className="mt-7 w-full max-w-md inline-flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-sky-950 font-black text-sm sm:text-base py-4 px-6 rounded-xl shadow-lg shadow-amber-400/20 active:scale-[0.98] transition-colors duration-200 cursor-pointer uppercase tracking-wide text-center"
+            >
+              <span>QUERO O COMBO COMPLETO POR {comboPriceLabel}</span>
+              <ArrowRight className="w-4 h-4 shrink-0" />
+            </a>
+            <p className="text-[11px] sm:text-xs text-neutral-300 mt-2.5 font-medium">
+              Acesso imediato em PDF por e-mail · Garantia incondicional de 7 dias
+            </p>
+          </div>
         </div>
       </section>
 
