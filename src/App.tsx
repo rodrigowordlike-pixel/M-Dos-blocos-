@@ -142,7 +142,7 @@ export default function App() {
           {/* Apresentação inicial direta */}
           <div className="md:col-span-7 md:col-start-1 md:row-start-1 text-center md:text-left">
             <p className="text-xs sm:text-sm font-bold text-amber-300 tracking-wide mb-2">
-              Matemática no Mundo dos Blocos · 1º ao 5º ano (PDF)
+              Matemática no Mundo dos Blocos · 1º ao 5º ano
             </p>
 
             <h1 className="text-[1.6rem] sm:text-4xl lg:text-[2.55rem] font-black leading-[1.15] mb-3 tracking-tight text-white text-balance">
@@ -150,7 +150,7 @@ export default function App() {
             </h1>
 
             <p className="text-sm sm:text-base font-medium text-sky-100 leading-relaxed max-w-xl mx-auto md:mx-0">
-              Mais de <strong className="text-white">360 atividades em PDF para imprimir</strong>, criadas com estética de blocos para crianças de 6 a 11 anos aprenderem no papel com prazer.
+              Mais de <strong className="text-white">360 atividades práticas</strong>, criadas com estética de blocos para crianças de 6 a 11 anos aprenderem no papel com prazer.
             </p>
           </div>
 
@@ -158,7 +158,7 @@ export default function App() {
           <div className="md:col-span-5 md:col-start-8 md:row-start-1 md:row-span-2 flex flex-col items-center my-5 md:my-0">
             <VslPlayer checkoutUrl={comboCheckoutUrl} ctaLabel="QUERO O COMBO COMPLETO" />
             <p className="mt-2.5 text-xs text-sky-100 font-medium text-center max-w-[260px]">
-              Veja por dentro como o material fica depois de impresso
+              Veja o material por dentro
             </p>
           </div>
 

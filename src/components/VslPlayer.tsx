@@ -171,7 +171,7 @@ export function VslPlayer({ checkoutUrl, ctaLabel = 'QUERO O COMBO COMPLETO' }: 
             <div className="absolute inset-0">
               <img
                 src="/assets/video-poster.webp"
-                alt="Prévia do caderno Matemática no Mundo dos Blocos impresso"
+                alt="Prévia do caderno Matemática no Mundo dos Blocos"
                 width={320}
                 height={568}
                 fetchPriority="high"
